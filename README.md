@@ -298,7 +298,10 @@ openssl dgst -sha256 \
 
 > **Pro tip for CI**: In GitHub Actions, use OIDC to get a token and run `cosign sign-blob` without a browser. Pin identities with `--certificate-identity-regexp` to match your repo/ref pattern for safer verification.
 
-### What to Keep, publish and store as metadata
+
+### 7) Metadata and Repo Layout
+
+#### What to Keep, publish and store as metadata
 
 #### Quick inventory — what each file is (and whether to publish it)
 
@@ -314,7 +317,6 @@ openssl dgst -sha256 \
 > TL;DR for your repo: publish **`test-file.txt` + `fulcio.sig` + `fulcio.crt`**. Exclude `cosign.key`, `cosign.pub` (unless you do keyful too), and `fulcio.sig.der`.
 
 ---
-### 7) Metadata and Repo Layout
 
 #### 7.1) Suggested repo layout
 
