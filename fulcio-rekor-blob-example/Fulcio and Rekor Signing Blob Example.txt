@@ -1,0 +1,232 @@
+Fulcio and Rekor Signing Blob Example
+
+
+echo "test file contents" > test-file.txt
+
+cat test-file.txt
+test file contents
+
+Ensure you have cosign installed.
+cosign --help
+A tool for Container Signing, Verification and Storage in an OCI registry.
+
+Usage:
+cosign [command]
+
+Available Commands:
+attach                  Provides utilities for attaching artifacts to other artifacts in a registry
+attest                  Attest the supplied container image.
+attest-blob             Attest the supplied blob.
+bundle                  Interact with a Sigstore protobuf bundle
+clean                   Remove all signatures from an image.
+completion              Generate completion script
+copy                    Copy the supplied container image and signatures.
+dockerfile              Provides utilities for discovering images in and performing operations on Dockerfiles
+download                Provides utilities for downloading artifacts and attached artifacts in a registry
+env                     Prints Cosign environment variables
+generate                Generates (unsigned) signature payloads from the supplied container image.
+generate-key-pair       Generates a key-pair.
+help                    Help about any command
+import-key-pair         Imports a PEM-encoded RSA or EC private key.
+initialize              Initializes SigStore root to retrieve trusted certificate and key targets for verification.
+load                    Load a signed image on disk to a remote registry
+login                   Log in to a registry
+manifest                Provides utilities for discovering images in and performing operations on Kubernetes manifests
+public-key              Gets a public key from the key-pair.
+save                    Save the container image and associated signatures to disk at the specified directory.
+sign                    Sign the supplied container image.
+sign-blob               Sign the supplied blob, outputting the base64-encoded signature to stdout.
+signing-config          Interact with a Sigstore protobuf signing config
+tree                    Display supply chain security related artifacts for an image such as signatures, SBOMs and attestations
+triangulate             Outputs the located cosign image reference. This is the location where cosign stores the specified artifact type.
+trusted-root            Interact with a Sigstore protobuf trusted root
+upload                  Provides utilities for uploading artifacts to a registry
+verify                  Verify a signature on the supplied container image
+verify-attestation      Verify an attestation on the supplied container image
+verify-blob             Verify a signature on the supplied blob
+verify-blob-attestation Verify an attestation on the supplied blob
+version                 Prints the version
+
+
+cosign generate-key-pair
+Enter password for private key:
+Enter password for private key again:
+WARNING: File cosign.key already exists. Overwrite?
+Are you sure you would like to continue? [y/N] y
+Private key written to cosign.key
+Public key written to cosign.pub
+
+ls -l
+
+-rw-r--r--   1 nmaharaj  staff    19B 16 Sep 07:24 test-file.txt
+-rw-------   1 nmaharaj  staff   653B 16 Sep 07:25 cosign.key
+-rw-r--r--   1 nmaharaj  staff   178B 16 Sep 07:25 cosign.pub
+
+cat cosign.key
+-----BEGIN ENCRYPTED SIGSTORE PRIVATE KEY-----
+eyJrZGYiOnsibmFtZSI6InNjcnlwdCIsInBhcmFtcyI6eyJOIjo2NTUzNiwiciI6
+OCwicCI6MX0sInNhbHQiOiJrZVBleGhKU1lNRTN3WUJIMkhxQ25VNFBDWE4xSHJF
+...
+-----END ENCRYPTED SIGSTORE PRIVATE KEY-----
+
+cat cosign.pub
+-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEvp8+CwUj9uIkn+8SHlKg8MPAtEj3
+ppc8iqbywyZRPaKtzkEj1Eknijo2oM4iur4RB4PN3D83h1oZzcQuCH9Gqw==
+-----END PUBLIC KEY-----
+
+
+cosign sign-blob test-file.txt --output-certificate fulcio.crt.base64 --output-signature fulcio.sig
+setting TUF refresh period to 24h0m0s
+Using payload from: test-file.txt
+Generating ephemeral keys...
+Retrieving signed certificate...
+
+	The sigstore service, hosted by sigstore a Series of LF Projects, LLC, is provided pursuant to the Hosted Project Tools Terms of Use, available at https://lfprojects.org/policies/hosted-project-tools-terms-of-use/.
+	Note that if your submission includes personal data associated with this signed artifact, it will be part of an immutable record.
+	This may include the email address associated with the account with which you authenticate your contractual Agreement.
+	This information will be used for signing this artifact and will be stored in public transparency logs and cannot be removed later, and is subject to the Immutable Record notice at https://lfprojects.org/policies/hosted-project-tools-immutable-records/.
+
+By typing 'y', you attest that (1) you are not submitting the personal data of any other person; and (2) you understand and agree to the statement and the Agreement terms at the URLs listed above.
+Are you sure you would like to continue? [y/N] y
+Your browser will now be opened to:
+https://oauth2.sigstore.dev/auth/auth?access_type=online&client_id=sigstore&code_challenge=w4spUmx2j4r_lBSh7XSmvy1JrWeSIdT-ina3XtuzYMk&code_challenge_method=S256&nonce=32lnaXepSQvyuk7OtTaKUrW6mxi&redirect_uri=http%3A%2F%2Flocalhost%3A57034%2Fauth%2Fcallback&response_type=code&scope=openid+email&state=32lnaX3PoYA1RPKfjKIlLIuH8LY
+Successfully verified SCT...
+tlog entry created with index: 522663709
+Wrote signature to file fulcio.sig
+Wrote certificate to file fulcio.crt.base64
+
+ls -l
+-rw-r--r--   1 nmaharaj  staff    19B 16 Sep 07:24 test-file.txt
+-rw-------   1 nmaharaj  staff   653B 16 Sep 07:25 cosign.key
+-rw-r--r--   1 nmaharaj  staff   178B 16 Sep 07:25 cosign.pub
+-rw-------   1 nmaharaj  staff    96B 16 Sep 07:28 fulcio.sig
+-rw-------   1 nmaharaj  staff   1.3K 16 Sep 07:28 fulcio.crt.base64
+
+nmaharaj@CLV-NMAHARAJ ~ % cat fulcio.crt.base64
+LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5ekNDQWxHZ0F3SUJBZ0lVSkVZZG0yU2JXOUhqaXBtNWxkeENGMHB3U09rd0NnWUlLb1pJemowRUF3TXcKTnpFVk1CTUdBMVVFQ2hNTWMybG5jM1J2Y21VdVpHVjJNUjR3SEFZRFZRUURFeFZ6YVdkemRHOXlaUzFwYm5SbApjbTFsWkdsaGRHVXdIaGNOTWpVd09URTJNRFl5T0RFNFdoY05NalV3T1RFMk1EWXpPREU0V2pBQU1Ga3dFd1lICktvWkl6ajBDQVFZSUtvWkl6ajBEQVFjRFFnQUVJWUVnWk0zSlBVeStoQU5rT1VSVjZoeS9JOTZjVmJEb1ZJMVQKbVJpckpFSXJ0VE42bFBCYnhBeDl4WXhOWXA3VmxCcE96UHNKTzVDZ0l4SEVnSE51ZnFPQ0FYQXdnZ0ZzTUE0RwpBMVVkRHdFQi93UUVBd0lIZ0RBVEJnTlZIU1VFRERBS0JnZ3JCZ0VGQlFjREF6QWRCZ05WSFE0RUZnUVVaYU43CkRBbmZJdS9HWDNYTlNsc1BhMit1Skdrd0h3WURWUjBqQkJnd0ZvQVUzOVBwejFZa0VaYjVxTmpwS0ZXaXhpNFkKWkQ4d0lRWURWUjBSQVFIL0JCY3dGWUVUYm0xaGFHRnlZV3BBWTJ4aGRtbDFiUzVwYnpBcEJnb3JCZ0VFQVlPLwpNQUVCQkJ0b2RIUndjem92TDJGalkyOTFiblJ6TG1kdmIyZHNaUzVqYjIwd0t3WUtLd1lCQkFHRHZ6QUJDQVFkCkRCdG9kSFJ3Y3pvdkwyRmpZMjkxYm5SekxtZHZiMmRzWlM1amIyMHdnWWtHQ2lzR0FRUUIxbmtDQkFJRWV3UjUKQUhjQWRRRGRQVEJxeHNjUk1tTVpIaHlaWnpjQ29rcGV1TjQ4cmYrSGluS0FMeW51amdBQUFabFJOYmRoQUFBRQpBd0JHTUVRQ0lHZmI4bHRNa2luYTNvQnByQWVqQWJva01GamFhZzc1ZHV6ODl4RlFHS1RFQWlBbTFtS2lTa2pHClRMMjFVQU1RbU5UNWFOTTNtYzBwRWxlRW1Qek9EOGg2Z3pBS0JnZ3Foa2pPUFFRREF3Tm9BREJsQWpFQWxhVFIKZWRHZjlRUEpJeWVvWi9FamJ0YmtwNWNKa3lTeXVlR09tZnZHM1BIenZzMUdSZTltdnd3b1AzcFEyRVlrQWpCagp1alRMbWZHbTVxS3FvRGxLNUNPbGxSbDdXa3lLYW1DV2gxSHo4ZU5Rc2JXRm0zUlphUzNKU01jRjFDb01rTmM9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K%
+
+cat fulcio.sig
+MEUCIQDwCVcKXCS7kXCO3tyHBatc0OzHQ5aZIlgqf3aDgL4ZIwIgPoxF94fEdv3HtTsvNSC4N8ID62Uvihm0zXSo3anvfmc=%
+
+
+base64 -d -i fulcio.crt.base64 -o fulcio.crt
+
+ls -l
+-rw-r--r--   1 nmaharaj  staff    19B 16 Sep 07:24 test-file.txt
+-rw-------   1 nmaharaj  staff   653B 16 Sep 07:25 cosign.key
+-rw-r--r--   1 nmaharaj  staff   178B 16 Sep 07:25 cosign.pub
+-rw-------   1 nmaharaj  staff    96B 16 Sep 07:28 fulcio.sig
+-rw-------   1 nmaharaj  staff   1.3K 16 Sep 07:28 fulcio.crt.base64
+-rw-r--r--   1 nmaharaj  staff   1.0K 16 Sep 07:31 fulcio.crt
+
+brew install step
+
+step certificate inspect fulcio.crt
+
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 207087299047343728204860307090090740318372645097 (0x24461d9b649b5bd1e38a99b995dc42174a7048e9)
+    Signature Algorithm: ECDSA-SHA384
+        Issuer: O=sigstore.dev,CN=sigstore-intermediate
+        Validity
+            Not Before: Sep 16 06:28:18 2025 UTC
+            Not After : Sep 16 06:38:18 2025 UTC
+        Subject:
+        Subject Public Key Info:
+            Public Key Algorithm: ECDSA
+                Public-Key: (256 bit)
+                X:
+                    21:81:20:64:cd:c9:3d:4c:be:84:03:64:39:44:55:
+                    ea:1c:bf:23:de:9c:55:b0:e8:54:8d:53:99:18:ab:
+                    24:42
+                Y:
+                    2b:b5:33:7a:94:f0:5b:c4:0c:7d:c5:8c:4d:62:9e:
+                    d5:94:1a:4e:cc:fb:09:3b:90:a0:23:11:c4:80:73:
+                    6e:7e
+                Curve: P-256
+        X509v3 extensions:
+            X509v3 Key Usage: critical
+                Digital Signature
+            X509v3 Extended Key Usage:
+                Code Signing
+            X509v3 Subject Key Identifier:
+                65:A3:7B:0C:09:DF:22:EF:C6:5F:75:CD:4A:5B:0F:6B:6F:AE:24:69
+            X509v3 Authority Key Identifier:
+                keyid:DF:D3:E9:CF:56:24:11:96:F9:A8:D8:E9:28:55:A2:C6:2E:18:64:3F
+            X509v3 Subject Alternative Name: critical
+                email:nmaharaj@clavium.io
+            Sigstore OIDC Issuer:
+                https://accounts.google.com
+            1.3.6.1.4.1.57264.1.8:
+                ..https://accounts.google.com
+            RFC6962 Certificate Transparency SCT:
+                SCT [0]:
+                    Version: V1 (0x0)
+                    LogID: 3T0wasbHETJjGR4cmWc3AqJKXrjePK3/h4pygC8p7o4=
+                    Timestamp: Sep 16 06:28:18.913 2025 UTC
+                    Signature Algorithm: SHA256-ECDSA
+                      30:44:02:20:67:db:f2:5b:4c:92:29:da:de:80:69:ac:07:a3:
+                      01:ba:24:30:58:da:6a:0e:f9:76:ec:fc:f7:11:50:18:a4:c4:
+                      02:20:26:d6:62:a2:4a:48:c6:4c:bd:b5:50:03:10:98:d4:f9:
+                      68:d3:37:99:cd:29:12:57:84:98:fc:ce:0f:c8:7a:83
+    Signature Algorithm: ECDSA-SHA384
+         30:65:02:31:00:95:a4:d1:79:d1:9f:f5:03:c9:23:27:a8:67:
+         f1:23:6e:d6:e4:a7:97:09:93:24:b2:b9:e1:8e:99:fb:c6:dc:
+         f1:f3:be:cd:46:45:ef:66:bf:0c:28:3f:7a:50:d8:46:24:02:
+         30:63:ba:34:cb:99:f1:a6:e6:a2:aa:a0:39:4a:e4:23:a5:95:
+         19:7b:5a:4c:8a:6a:60:96:87:51:f3:f1:e3:50:b1:b5:85:9b:
+         74:59:69:2d:c9:48:c7:05:d4:2a:0c:90:d7
+
+
+cosign verify-blob test-file.txt \
+  --signature fulcio.sig \
+  --cert fulcio.crt.base64 \
+  --certificate-identity nmaharaj@clavium.io \
+  --certificate-oidc-issuer https://accounts.google.com
+
+setting TUF refresh period to 24h0m0s
+Verified OK
+
+brew install rekor-cli
+
+rekor-cli version
+  ____    _____   _  __   ___    ____             ____   _       ___
+ |  _ \  | ____| | |/ /  / _ \  |  _ \           / ___| | |     |_ _|
+ | |_) | |  _|   | ' /  | | | | | |_) |  _____  | |     | |      | |
+ |  _ <  | |___  | . \  | |_| | |  _ <  |_____| | |___  | |___   | |
+ |_| \_\ |_____| |_|\_\  \___/  |_| \_\          \____| |_____| |___|
+rekor-cli: Rekor CLI
+
+GitVersion:    1.4.1
+GitCommit:     Homebrew
+GitTreeState:  Homebrew
+BuildDate:     2025-08-29T14:42:14Z
+GoVersion:     go1.25.0
+Compiler:      gc
+Platform:      darwin/arm64
+
+
+rekor-cli get --rekor_server https://rekor.sigstore.dev --log-index 522663709
+
+LogID: c0d23d6ad406973f9559f3ba2d1ca01f84147d8ffc5b8445c224f98b9591801d
+Index: 522663709
+IntegratedTime: 2025-09-16T06:28:19Z
+UUID: 108e9186e8c5677a32635644ebf547c3d66dbe5a0b89a359c80919eb5be03635e8a5f09ce2daa766
+Body: {
+  "HashedRekordObj": {
+    "data": {
+      "hash": {
+        "algorithm": "sha256",
+        "value": "8376f260fca20effdf3c7b66f2f56d7f118b532e6712af09a4f8922ccab58c5c"
+      }
+    },
+    "signature": {
+      "content": "MEUCIQDwCVcKXCS7kXCO3tyHBatc0OzHQ5aZIlgqf3aDgL4ZIwIgPoxF94fEdv3HtTsvNSC4N8ID62Uvihm0zXSo3anvfmc=",
+      "publicKey": {
+        "content": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5ekNDQWxHZ0F3SUJBZ0lVSkVZZG0yU2JXOUhqaXBtNWxkeENGMHB3U09rd0NnWUlLb1pJemowRUF3TXcKTnpFVk1CTUdBMVVFQ2hNTWMybG5jM1J2Y21VdVpHVjJNUjR3SEFZRFZRUURFeFZ6YVdkemRHOXlaUzFwYm5SbApjbTFsWkdsaGRHVXdIaGNOTWpVd09URTJNRFl5T0RFNFdoY05NalV3T1RFMk1EWXpPREU0V2pBQU1Ga3dFd1lICktvWkl6ajBDQVFZSUtvWkl6ajBEQVFjRFFnQUVJWUVnWk0zSlBVeStoQU5rT1VSVjZoeS9JOTZjVmJEb1ZJMVQKbVJpckpFSXJ0VE42bFBCYnhBeDl4WXhOWXA3VmxCcE96UHNKTzVDZ0l4SEVnSE51ZnFPQ0FYQXdnZ0ZzTUE0RwpBMVVkRHdFQi93UUVBd0lIZ0RBVEJnTlZIU1VFRERBS0JnZ3JCZ0VGQlFjREF6QWRCZ05WSFE0RUZnUVVaYU43CkRBbmZJdS9HWDNYTlNsc1BhMit1Skdrd0h3WURWUjBqQkJnd0ZvQVUzOVBwejFZa0VaYjVxTmpwS0ZXaXhpNFkKWkQ4d0lRWURWUjBSQVFIL0JCY3dGWUVUYm0xaGFHRnlZV3BBWTJ4aGRtbDFiUzVwYnpBcEJnb3JCZ0VFQVlPLwpNQUVCQkJ0b2RIUndjem92TDJGalkyOTFiblJ6TG1kdmIyZHNaUzVqYjIwd0t3WUtLd1lCQkFHRHZ6QUJDQVFkCkRCdG9kSFJ3Y3pvdkwyRmpZMjkxYm5SekxtZHZiMmRzWlM1amIyMHdnWWtHQ2lzR0FRUUIxbmtDQkFJRWV3UjUKQUhjQWRRRGRQVEJxeHNjUk1tTVpIaHlaWnpjQ29rcGV1TjQ4cmYrSGluS0FMeW51amdBQUFabFJOYmRoQUFBRQpBd0JHTUVRQ0lHZmI4bHRNa2luYTNvQnByQWVqQWJva01GamFhZzc1ZHV6ODl4RlFHS1RFQWlBbTFtS2lTa2pHClRMMjFVQU1RbU5UNWFOTTNtYzBwRWxlRW1Qek9EOGg2Z3pBS0JnZ3Foa2pPUFFRREF3Tm9BREJsQWpFQWxhVFIKZWRHZjlRUEpJeWVvWi9FamJ0YmtwNWNKa3lTeXVlR09tZnZHM1BIenZzMUdSZTltdnd3b1AzcFEyRVlrQWpCagp1alRMbWZHbTVxS3FvRGxLNUNPbGxSbDdXa3lLYW1DV2gxSHo4ZU5Rc2JXRm0zUlphUzNKU01jRjFDb01rTmM9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K"
+      }
+    }
+  }
+}
