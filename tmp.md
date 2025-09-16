@@ -88,12 +88,15 @@ cosign verify-blob artifacts/test-file.txt \
 
 ## 2) What to store in your database (and why)
 
-You proposed:
-
 * `reponame: my-app-repo`
+* `artifact_path: artifact_url`
 * `app-file: test-file.txt`
 * `cert: fulcio.crt`
+* `cert_pem_base64: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5ekNDQWxHZ0F3SUJBZ0lVSkVZZG0yU2JXOUhqaXBtNWxkeENGMHB3U09rd0NnWUlLb1pJemowRUF3TXcKTnpFVk1CTUdBMVVFQ2hNTWMybG5jM1J2Y21VdVpHVjJNUjR3SEFZRFZRUURFeFZ6YVdkemRHOXlaUzFwYm5SbApjbTFsWkdsaGRHVXdIaGNOTWpVd09URTJNRFl5T0RFNFdoY05NalV3T1RFMk1EWXpPREU0V2pBQU1Ga3dFd1lICktvWkl6ajBDQVFZSUtvWkl6ajBEQVFjRFFnQUVJWUVnWk0zSlBVeStoQU5rT1VSVjZoeS9JOTZjVmJEb1ZJMVQKbVJpckpFSXJ0VE42bFBCYnhBeDl4WXhOWXA3VmxCcE96UHNKTzVDZ0l4SEVnSE51ZnFPQ0FYQXdnZ0ZzTUE0RwpBMVVkRHdFQi93UUVBd0lIZ0RBVEJnTlZIU1VFRERBS0JnZ3JCZ0VGQlFjREF6QWRCZ05WSFE0RUZnUVVaYU43CkRBbmZJdS9HWDNYTlNsc1BhMit1Skdrd0h3WURWUjBqQkJnd0ZvQVUzOVBwejFZa0VaYjVxTmpwS0ZXaXhpNFkKWkQ4d0lRWURWUjBSQVFIL0JCY3dGWUVUYm0xaGFHRnlZV3BBWTJ4aGRtbDFiUzVwYnpBcEJnb3JCZ0VFQVlPLwpNQUVCQkJ0b2RIUndjem92TDJGalkyOTFiblJ6TG1kdmIyZHNaUzVqYjIwd0t3WUtLd1lCQkFHRHZ6QUJDQVFkCkRCdG9kSFJ3Y3pvdkwyRmpZMjkxYm5SekxtZHZiMmRzWlM1amIyMHdnWWtHQ2lzR0FRUUIxbmtDQkFJRWV3UjUKQUhjQWRRRGRQVEJxeHNjUk1tTVpIaHlaWnpjQ29rcGV1TjQ4cmYrSGluS0FMeW51amdBQUFabFJOYmRoQUFBRQpBd0JHTUVRQ0lHZmI4bHRNa2luYTNvQnByQWVqQWJva01GamFhZzc1ZHV6ODl4RlFHS1RFQWlBbTFtS2lTa2pHClRMMjFVQU1RbU5UNWFOTTNtYzBwRWxlRW1Qek9EOGg2Z3pBS0JnZ3Foa2pPUFFRREF3Tm9BREJsQWpFQWxhVFIKZWRHZjlRUEpJeWVvWi9FamJ0YmtwNWNKa3lTeXVlR09tZnZHM1BIenZzMUdSZTltdnd3b1AzcFEyRVlrQWpCagp1alRMbWZHbTVxS3FvRGxLNUNPbGxSbDdXa3lLYW1DV2gxSHo4ZU5Rc2JXRm0zUlphUzNKU01jRjFDb01rTmM9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K`
 * `signature: fulcio.sig`
+* `signature_not before: Sep 16 06:28:18 2025 UTC`
+* `signature_not_after: Sep 16 06:38:18 2025 UTC`
+* `signature_base64: TUVVQ0lRRHdDVmNLWENTN2tYQ08zdHlIQmF0YzBPekhRNWFaSWxncWYzYURnTDRaSXdJZ1BveEY5NGZFZHYzSHRUc3ZOU0M0TjhJRDYyVXZpaG0welhTbzNhbnZmbWM9`
 * `log-index: 522663709`
 * `sha256: 8376f260fca20effdf3c7b66f2f56d7f118b532e6712af09a4f8922ccab58c5c`
 * `certificate_pem` — store the PEM bytes (or a blob reference).
@@ -132,13 +135,6 @@ rekor-cli get --rekor_server https://rekor.sigstore.dev --log-index 522663709
   }
 }
 ```
-**Nice-to-haves**
-
-* `cert_not_before`, `cert_not_after` — from the cert.
-* `cert_subject_key_id` — quick key identity.
-* `sig_base64` — the signature content (redundant but convenient).
-* `artifact_path` / `artifact_url` — where to fetch in your repo.
-
 ### Example SQL (Postgres-ish)
 
 ```sql
@@ -161,21 +157,25 @@ CREATE TABLE signed_blobs (
 );
 ```
 
-Populate from your current run (values you showed):
+### Example NoSQL JSON (MongoDb-ish)
 
-* `repo` = `my-app-repo`
-* `artifact_path` = `artifacts/test-file.txt`
-* `sha256` = `8376f260...58c5c`
-* `signature_base64` = contents of `fulcio.sig`
-* `certificate_pem` = contents of `fulcio.crt`
-* `certificate_identity` = `nmaharaj@clavium.io`
-* `certificate_oidc_issuer` = `https://accounts.google.com`
-* `rekor_index` = `522663709`
-* (Optional) pull `rekor_uuid`, `rekor_log_id`, `rekor_integrated_time` from:
-
-  ```bash
-  rekor-cli get --rekor_server https://rekor.sigstore.dev --log-index 522663709
-  ```
+```json
+{
+  "repo": "my-app-repo",
+  "artifact_path": "artifact_url",
+  "sha256": "8376f260fca20effdf3c7b66f2f56d7f118b532e6712af09a4f8922ccab58c5c",
+  "signature_base64": "TUVVQ0lRRHdDVmNLWENTN2tYQ08zdHlIQmF0YzBPekhRNWFaSWxncWYzYURnTDRaSXdJZ1BveEY5NGZFZHYzSHRUc3ZOU0M0TjhJRDYyVXZpaG0welhTbzNhbnZmbWM9",
+  "certificate_pem": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5ekNDQWxHZ0F3SUJBZ0lVSkVZZG0yU2JXOUhqaXBtNWxkeENGMHB3U09rd0NnWUlLb1pJemowRUF3TXcKTnpFVk1CTUdBMVVFQ2hNTWMybG5jM1J2Y21VdVpHVjJNUjR3SEFZRFZRUURFeFZ6YVdkemRHOXlaUzFwYm5SbApjbTFsWkdsaGRHVXdIaGNOTWpVd09URTJNRFl5T0RFNFdoY05NalV3T1RFMk1EWXpPREU0V2pBQU1Ga3dFd1lICktvWkl6ajBDQVFZSUtvWkl6ajBEQVFjRFFnQUVJWUVnWk0zSlBVeStoQU5rT1VSVjZoeS9JOTZjVmJEb1ZJMVQKbVJpckpFSXJ0VE42bFBCYnhBeDl4WXhOWXA3VmxCcE96UHNKTzVDZ0l4SEVnSE51ZnFPQ0FYQXdnZ0ZzTUE0RwpBMVVkRHdFQi93UUVBd0lIZ0RBVEJnTlZIU1VFRERBS0JnZ3JCZ0VGQlFjREF6QWRCZ05WSFE0RUZnUVVaYU43CkRBbmZJdS9HWDNYTlNsc1BhMit1Skdrd0h3WURWUjBqQkJnd0ZvQVUzOVBwejFZa0VaYjVxTmpwS0ZXaXhpNFkKWkQ4d0lRWURWUjBSQVFIL0JCY3dGWUVUYm0xaGFHRnlZV3BBWTJ4aGRtbDFiUzVwYnpBcEJnb3JCZ0VFQVlPLwpNQUVCQkJ0b2RIUndjem92TDJGalkyOTFiblJ6TG1kdmIyZHNaUzVqYjIwd0t3WUtLd1lCQkFHRHZ6QUJDQVFkCkRCdG9kSFJ3Y3pvdkwyRmpZMjkxYm5SekxtZHZiMmRzWlM1amIyMHdnWWtHQ2lzR0FRUUIxbmtDQkFJRWV3UjUKQUhjQWRRRGRQVEJxeHNjUk1tTVpIaHlaWnpjQ29rcGV1TjQ4cmYrSGluS0FMeW51amdBQUFabFJOYmRoQUFBRQpBd0JHTUVRQ0lHZmI4bHRNa2luYTNvQnByQWVqQWJva01GamFhZzc1ZHV6ODl4RlFHS1RFQWlBbTFtS2lTa2pHClRMMjFVQU1RbU5UNWFOTTNtYzBwRWxlRW1Qek9EOGg2Z3pBS0JnZ3Foa2pPUFFRREF3Tm9BREJsQWpFQWxhVFIKZWRHZjlRUEpJeWVvWi9FamJ0YmtwNWNKa3lTeXVlR09tZnZHM1BIenZzMUdSZTltdnd3b1AzcFEyRVlrQWpCagp1alRMbWZHbTVxS3FvRGxLNUNPbGxSbDdXa3lLYW1DV2gxSHo4ZU5Rc2JXRm0zUlphUzNKU01jRjFDb01rTmM9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K",
+  "certificate_identity": "nmaharaj@clavium.io",
+  "certificate_oidc_issuer": "https://accounts.google.com",
+  "cert_not_before": "2025-09-16T06:28:18Z",
+  "cert_not_after": "2025-09-16T06:38:18Z",
+  "rekor_index": 522663709,
+  "rekor_uuid": "108e9186e8c5677a32635644ebf547c3d66dbe5a0b89a359c80919eb5be03635e8a5f09ce2daa766",
+  "rekor_log_id": "c0d23d6ad406973f9559f3ba2d1ca01f84147d8ffc5b8445c224f98b9591801d",
+  "rekor_integrated_time": "2025-09-16T06:28:19Z"
+}
+```
 
 ---
 
