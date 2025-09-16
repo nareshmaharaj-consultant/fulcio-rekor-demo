@@ -300,7 +300,7 @@ openssl dgst -sha256 \
 
 ### What to Keep, publish and store as metadata
 
-## Quick inventory — what each file is (and whether to publish it)
+#### Quick inventory — what each file is (and whether to publish it)
 
 | File                               | What it is                                                            | Keep/Publish?                   | Why                                                                                                                          |
 | ---------------------------------- | --------------------------------------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
@@ -316,11 +316,11 @@ openssl dgst -sha256 \
 ---
 ### 7) Metadata and Repo Layout
 
-## 7.1) Suggested repo layout
+#### 7.1) Suggested repo layout
 
 Two solid ways to organize. Pick **A** (modern & tidy) or **B** (your current files).
 
-### A) Recommended (bundle)
+#### A) Recommended (bundle)
 
 Cosign can write a single **Sigstore bundle** that includes the signature, cert, and Rekor proof:
 
@@ -346,7 +346,7 @@ cosign verify-blob artifacts/test-file.txt \
   --certificate-oidc-issuer https://accounts.google.com
 ```
 
-### B) Another approach using separate files
+#### B) Another approach using separate files
 
 **Publish:**
 
@@ -385,7 +385,7 @@ cosign verify-blob artifacts/test-file.txt \
 
 ---
 
-## 7.2) What to store in your database (and why)
+### 7.2) What to store in your database (and why)
 
 * `reponame: my-app-repo`
 * `artifact_path: artifact_url`
@@ -450,7 +450,7 @@ CREATE TABLE signed_blobs (
 
 ---
 
-## 7.3) What a verifier (or CI) should do with your DB row
+### 7.3) What a verifier (or CI) should do with your DB row
 
 Given one DB record, your verification routine is:
 
@@ -467,7 +467,7 @@ If all checks pass → accept; else → fail the build/release.
 
 ---
 
-## 7.4) Naming & housekeeping
+### 7.4) Naming & housekeeping
 
 * Name files consistently so you can scale:
 
@@ -493,7 +493,7 @@ If all checks pass → accept; else → fail the build/release.
 
 ---
 
-## 7.5) One-line verify command (copy/paste for consumers)
+### 7.5) One-line verify command (copy/paste for consumers)
 
 ```bash
 cosign verify-blob artifacts/test-file.txt \
