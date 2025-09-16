@@ -387,7 +387,7 @@ cosign verify-blob artifacts/test-file.txt \
 
 ---
 
-### 7.2) What to store in your database (and why)
+#### 7.2) What to store in your database (and why)
 
 * `reponame: my-app-repo`
 * `artifact_path: artifact_url`
@@ -452,7 +452,7 @@ CREATE TABLE signed_blobs (
 
 ---
 
-### 7.3) What a verifier (or CI) should do with your DB row
+#### 7.3) What a verifier (or CI) should do with your DB row
 
 Given one DB record, your verification routine is:
 
@@ -469,7 +469,7 @@ If all checks pass → accept; else → fail the build/release.
 
 ---
 
-### 7.4) Naming & housekeeping
+#### 7.4) Naming & housekeeping
 
 * Name files consistently so you can scale:
 
@@ -495,7 +495,7 @@ If all checks pass → accept; else → fail the build/release.
 
 ---
 
-### 7.5) One-line verify command (copy/paste for consumers)
+#### 7.5) One-line verify command (copy/paste for consumers)
 
 ```bash
 cosign verify-blob artifacts/test-file.txt \
