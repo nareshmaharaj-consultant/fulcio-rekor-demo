@@ -47,7 +47,7 @@ cosign verify-blob artifacts/test-file.txt \
   --certificate-oidc-issuer https://accounts.google.com
 ```
 
-### B) Your current approach (separate files)
+### B) Another approach using separate files
 
 **Publish:**
 
@@ -95,24 +95,42 @@ You proposed:
 * `cert: fulcio.crt`
 * `signature: fulcio.sig`
 * `log-index: 522663709`
-* `hashvalue: 8376f260fca20effdf3c7b66f2f56d7f118b532e6712af09a4f8922ccab58c5c`
-
-Great start. I’d add a few fields so you can **reliably audit** and **programmatically verify**:
-
-**Must-haves**
-
-* `sha256` — canonical SHA256 of the file (you already have it).
+* `sha256: 8376f260fca20effdf3c7b66f2f56d7f118b532e6712af09a4f8922ccab58c5c`
 * `certificate_pem` — store the PEM bytes (or a blob reference).
-* `certificate_identity` — e.g. `nmaharaj@clavium.io`.
-* `certificate_oidc_issuer` — e.g. `https://accounts.google.com`.
+* `certificate_identity: nmaharaj@clavium.io`
+* `certificate_oidc_issuer: https://accounts.google.com`
+* `rekor_index: 522663709`
+* `rekor_uuid: 108e9186e8c5677a32635644ebf547c3d66dbe5a0b89a359c80919eb5be03635e8a5f09ce2daa766` # (more portable than index).
+* `rekor_log_id: c0d23d6ad406973f9559f3ba2d1ca01f84147d8ffc5b8445c224f98b9591801d` # identifies the log instance.
+* `rekor_integrated_time: 2025-09-16T06:28:19Z` # when the entry landed in Rekor.
 
-**Rekor details (strongly recommended)**
+If NoSQL JSON DB then you could store this as json with the above fields:
 
-* `rekor_index` — `522663709`.
-* `rekor_uuid` — from `rekor-cli get ...` (more portable than index).
-* `rekor_log_id` — identifies the log instance.
-* `rekor_integrated_time` — when the entry landed in Rekor.
+rekor-cli get --rekor_server https://rekor.sigstore.dev --log-index 522663709
 
+```json
+rekor-cli get --rekor_server https://rekor.sigstore.dev --log-index 522663709
+LogID: c0d23d6ad406973f9559f3ba2d1ca01f84147d8ffc5b8445c224f98b9591801d
+Index: 522663709
+IntegratedTime: 2025-09-16T06:28:19Z
+UUID: 108e9186e8c5677a32635644ebf547c3d66dbe5a0b89a359c80919eb5be03635e8a5f09ce2daa766
+Body: {
+  "HashedRekordObj": {
+    "data": {
+      "hash": {
+        "algorithm": "sha256",
+        "value": "8376f260fca20effdf3c7b66f2f56d7f118b532e6712af09a4f8922ccab58c5c"
+      }
+    },
+    "signature": {
+      "content": "MEUCIQDwCVcKXCS7kXCO3tyHBatc0OzHQ5aZIlgqf3aDgL4ZIwIgPoxF94fEdv3HtTsvNSC4N8ID62Uvihm0zXSo3anvfmc=",
+      "publicKey": {
+        "content": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5ekNDQWxHZ0F3SUJBZ0lVSkVZZG0yU2JXOUhqaXBtNWxkeENGMHB3U09rd0NnWUlLb1pJemowRUF3TXcKTnpFVk1CTUdBMVVFQ2hNTWMybG5jM1J2Y21VdVpHVjJNUjR3SEFZRFZRUURFeFZ6YVdkemRHOXlaUzFwYm5SbApjbTFsWkdsaGRHVXdIaGNOTWpVd09URTJNRFl5T0RFNFdoY05NalV3T1RFMk1EWXpPREU0V2pBQU1Ga3dFd1lICktvWkl6ajBDQVFZSUtvWkl6ajBEQVFjRFFnQUVJWUVnWk0zSlBVeStoQU5rT1VSVjZoeS9JOTZjVmJEb1ZJMVQKbVJpckpFSXJ0VE42bFBCYnhBeDl4WXhOWXA3VmxCcE96UHNKTzVDZ0l4SEVnSE51ZnFPQ0FYQXdnZ0ZzTUE0RwpBMVVkRHdFQi93UUVBd0lIZ0RBVEJnTlZIU1VFRERBS0JnZ3JCZ0VGQlFjREF6QWRCZ05WSFE0RUZnUVVaYU43CkRBbmZJdS9HWDNYTlNsc1BhMit1Skdrd0h3WURWUjBqQkJnd0ZvQVUzOVBwejFZa0VaYjVxTmpwS0ZXaXhpNFkKWkQ4d0lRWURWUjBSQVFIL0JCY3dGWUVUYm0xaGFHRnlZV3BBWTJ4aGRtbDFiUzVwYnpBcEJnb3JCZ0VFQVlPLwpNQUVCQkJ0b2RIUndjem92TDJGalkyOTFiblJ6TG1kdmIyZHNaUzVqYjIwd0t3WUtLd1lCQkFHRHZ6QUJDQVFkCkRCdG9kSFJ3Y3pvdkwyRmpZMjkxYm5SekxtZHZiMmRzWlM1amIyMHdnWWtHQ2lzR0FRUUIxbmtDQkFJRWV3UjUKQUhjQWRRRGRQVEJxeHNjUk1tTVpIaHlaWnpjQ29rcGV1TjQ4cmYrSGluS0FMeW51amdBQUFabFJOYmRoQUFBRQpBd0JHTUVRQ0lHZmI4bHRNa2luYTNvQnByQWVqQWJva01GamFhZzc1ZHV6ODl4RlFHS1RFQWlBbTFtS2lTa2pHClRMMjFVQU1RbU5UNWFOTTNtYzBwRWxlRW1Qek9EOGg2Z3pBS0JnZ3Foa2pPUFFRREF3Tm9BREJsQWpFQWxhVFIKZWRHZjlRUEpJeWVvWi9FamJ0YmtwNWNKa3lTeXVlR09tZnZHM1BIenZzMUdSZTltdnd3b1AzcFEyRVlrQWpCagp1alRMbWZHbTVxS3FvRGxLNUNPbGxSbDdXa3lLYW1DV2gxSHo4ZU5Rc2JXRm0zUlphUzNKU01jRjFDb01rTmM9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K"
+      }
+    }
+  }
+}
+```
 **Nice-to-haves**
 
 * `cert_not_before`, `cert_not_after` — from the cert.
