@@ -19,6 +19,7 @@ This README shows how to sign an **arbitrary file** (“blob”) with \[cosign],
   * [4) Verify the signature with cosign](#4-verify-the-signature-with-cosign)
   * [5) Verify with OpenSSL (optional)](#5-verify-with-openssl-optional)
   * [6) Inspect the Rekor entry](#6-inspect-the-rekor-entry)
+  * [7) Metadata and Repo Layout](#7-metadata-and-repo-layout)
 * [Alternative: Keyful (long-lived keypair)](#alternative-keyful-longlived-keypair)
 * [How it works (under the hood)](#how-it-works-under-the-hood)
 * [Troubleshooting & Tips](#troubleshooting--tips)
@@ -313,6 +314,7 @@ openssl dgst -sha256 \
 > TL;DR for your repo: publish **`test-file.txt` + `fulcio.sig` + `fulcio.crt`**. Exclude `cosign.key`, `cosign.pub` (unless you do keyful too), and `fulcio.sig.der`.
 
 ---
+### 7) Metadata and Repo Layout
 
 ## 7.1) Suggested repo layout
 
