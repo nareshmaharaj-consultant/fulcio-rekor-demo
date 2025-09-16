@@ -109,12 +109,12 @@ If NoSQL JSON DB then you could store this as json with the above fields:
 rekor-cli get --rekor_server https://rekor.sigstore.dev --log-index 522663709
 
 ```json
-rekor-cli get --rekor_server https://rekor.sigstore.dev --log-index 522663709
-LogID: c0d23d6ad406973f9559f3ba2d1ca01f84147d8ffc5b8445c224f98b9591801d
-Index: 522663709
-IntegratedTime: 2025-09-16T06:28:19Z
-UUID: 108e9186e8c5677a32635644ebf547c3d66dbe5a0b89a359c80919eb5be03635e8a5f09ce2daa766
-Body: {
+{
+ LogID: c0d23d6ad406973f9559f3ba2d1ca01f84147d8ffc5b8445c224f98b9591801d
+ Index: 522663709
+ IntegratedTime: 2025-09-16T06:28:19Z
+ UUID: 108e9186e8c5677a32635644ebf547c3d66dbe5a0b89a359c80919eb5be03635e8a5f09ce2daa766
+ Body: {
   "HashedRekordObj": {
     "data": {
       "hash": {
