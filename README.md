@@ -223,46 +223,6 @@ cosign verify-blob test-file.txt \
 
 ---
 
-## How it works (under the hood)
-
-* **Ephemeral keys**: cosign creates a short-lived keypair for each signing.
-* **Fulcio**: issues a **short-lived X.509** cert binding that public key to your **OIDC identity** (email, repo/ref, service account).
-* **TUF**: cosign securely bootstraps & refreshes Sigstore’s trusted roots via The Update Framework.
-* **CT (SCT)**: the certificate is logged to Certificate Transparency; the SCT in your cert proves that.
-* **Rekor**: stores an **append-only** record (hash of your file, signature, and cert) so anyone can verify what was signed, by whom, and when.
-
----
-
-## Troubleshooting & Tips
-
-* **Headless/CI logins**: Use non-interactive OIDC (e.g., GitHub Actions OIDC) or pass `--identity-token`.
-* **Identity mismatch**: Ensure `--certificate-identity` and `--certificate-oidc-issuer` exactly match the cert’s SAN & issuer.
-* **Proxies/firewalls**: Allow outbound HTTPS to your OIDC provider and `*.sigstore.dev` (Fulcio, Rekor).
-* **Reproducibility**: Sign the **exact bytes**. Changing line endings/whitespace changes the hash/signature.
-* **Privacy**: Keyless flows publish identity in public logs. Prefer workload identities if needed.
-
----
-
-## Cleanup
-
-```bash
-rm -f fulcio.sig fulcio.crt fulcio.crt.base64 test-file.txt keyful.sig
-# Keep cosign.key / cosign.pub only if you intend to use keyful signing later.
-```
-
----
-
-## Appendix: Glossary
-
-* **cosign** — CLI for signing & verifying containers and blobs.
-* **Fulcio** — Sigstore CA issuing short-lived certs bound to OIDC identities.
-* **Rekor** — Public, append-only transparency log of signing events (stores hashes, not your file).
-* **OIDC** — OpenID Connect; identity provider (Google, GitHub, etc.).
-* **CT/SCT** — Certificate Transparency / Signed Certificate Timestamp; public logging of X.509 certs.
-* **TUF** — The Update Framework; secures trust root distribution/updates.
-
----
-
 ### Copy/Paste Cheatsheet
 
 ```bash
@@ -512,6 +472,46 @@ rekor-cli get --rekor_server https://rekor.sigstore.dev --log-index 522663709
 shasum -a 256 artifacts/test-file.txt
 # expect: 8376f260fca20effdf3c7b66f2f56d7f118b532e6712af09a4f8922ccab58c5c
 ```
+
+---
+
+## How it works (under the hood)
+
+* **Ephemeral keys**: cosign creates a short-lived keypair for each signing.
+* **Fulcio**: issues a **short-lived X.509** cert binding that public key to your **OIDC identity** (email, repo/ref, service account).
+* **TUF**: cosign securely bootstraps & refreshes Sigstore’s trusted roots via The Update Framework.
+* **CT (SCT)**: the certificate is logged to Certificate Transparency; the SCT in your cert proves that.
+* **Rekor**: stores an **append-only** record (hash of your file, signature, and cert) so anyone can verify what was signed, by whom, and when.
+
+---
+
+## Troubleshooting & Tips
+
+* **Headless/CI logins**: Use non-interactive OIDC (e.g., GitHub Actions OIDC) or pass `--identity-token`.
+* **Identity mismatch**: Ensure `--certificate-identity` and `--certificate-oidc-issuer` exactly match the cert’s SAN & issuer.
+* **Proxies/firewalls**: Allow outbound HTTPS to your OIDC provider and `*.sigstore.dev` (Fulcio, Rekor).
+* **Reproducibility**: Sign the **exact bytes**. Changing line endings/whitespace changes the hash/signature.
+* **Privacy**: Keyless flows publish identity in public logs. Prefer workload identities if needed.
+
+---
+
+## Cleanup
+
+```bash
+rm -f fulcio.sig fulcio.crt fulcio.crt.base64 test-file.txt keyful.sig
+# Keep cosign.key / cosign.pub only if you intend to use keyful signing later.
+```
+
+---
+
+## Appendix: Glossary
+
+* **cosign** — CLI for signing & verifying containers and blobs.
+* **Fulcio** — Sigstore CA issuing short-lived certs bound to OIDC identities.
+* **Rekor** — Public, append-only transparency log of signing events (stores hashes, not your file).
+* **OIDC** — OpenID Connect; identity provider (Google, GitHub, etc.).
+* **CT/SCT** — Certificate Transparency / Signed Certificate Timestamp; public logging of X.509 certs.
+* **TUF** — The Update Framework; secures trust root distribution/updates.
 
 ---
 
